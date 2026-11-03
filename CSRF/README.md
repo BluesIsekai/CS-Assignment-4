@@ -45,15 +45,12 @@ this particular change. The dashboard explicitly labels this mode VULNERABLE.
 2. Click **Reset → vulnerable**. Show `saqlain@example.test`.
 3. Open the attacker URL in the same browser profile. Click **Claim reward**.
 4. The browser navigates to the victim; the email becomes `attacker@example.test`.
-5. Capture the dashboard as `screenshots/01_vulnerable_changed.png`.
-6. Click **Reset → secure**. The email resets to the original value.
-7. Reopen the attacker page and click the **same unchanged link**.
-8. Show **Request blocked**, HTTP **405** in the browser Network panel, and capture
-   `screenshots/02_secure_blocked.png`.
-9. Click **Return to account and verify email**. It remains `saqlain@example.test`.
-   Capture `screenshots/03_secure_unchanged.png`.
-10. Use the legitimate secure form to save `saqlain.updated@example.test` and show
-    that an intended update still works.
+5. Click **Reset → secure**. The email resets to the original value.
+6. Reopen the attacker page and click the **same unchanged link**.
+7. Show **Request blocked** and HTTP **405** in the browser Network panel.
+8. Click **Return to account and verify email**. It remains `saqlain@example.test`.
+9. Use the legitimate secure form to save `saqlain.updated@example.test` and show
+   that an intended update still works.
 
 Exact payload in `templates/attacker.html`:
 
@@ -122,4 +119,4 @@ Nine request-level tests cover vulnerable success, identical-payload rejection,
 valid and invalid tokens, session isolation, authentication, reset protection,
 read-only HEAD handling, and the exact attacker link. These tests do not simulate
 browser SameSite enforcement. The browser procedure above describes how to verify
-the cross-site navigation and capture exploit and mitigation evidence.
+the cross-site navigation and observe the exploit and mitigation results.
