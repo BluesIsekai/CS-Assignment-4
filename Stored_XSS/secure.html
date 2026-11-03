@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secure Mode | CommentHub</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/">◈ CommentHub</a><a class="back" href="/">← Dashboard</a></header>
+  <main class="container">
+    <div class="page-head">
+      <div><div class="eyebrow">MODE 02 · MITIGATION</div><h1>Secure Mode</h1></div>
+      <span class="status safe-status">● SAFE OUTPUT ENABLED</span>
+    </div>
+    <div class="success-box"><strong>Mitigation implemented</strong><p>This page reads the same comments from MySQL but renders untrusted values with <code>textContent</code>. Previously stored payloads should appear as text here and must not execute.</p></div>
+
+    <section class="panel">
+      <div class="section-heading"><div><div class="eyebrow">COMMENT FORM</div><h2>Post a comment</h2></div></div>
+      <form id="commentForm">
+        <label for="username">Display name</label>
+        <input id="username" maxlength="100" required placeholder="e.g. Student">
+        <label for="comment">Your comment</label>
+        <textarea id="comment" maxlength="2000" required rows="4" placeholder="Write a comment..."></textarea>
+        <div class="form-actions"><button class="button safe-button" type="submit">Save comment safely</button><span id="formMessage" class="muted" aria-live="polite"></span></div>
+      </form>
+      <div class="payload-box">
+        <div class="payload-title">Use the same harmless test payload</div>
+        <code>&lt;img src=x onerror="alert('Stored XSS executed!')"&gt;</code>
+        <button class="copy-button" id="copyPayload" type="button">Copy payload</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-heading"><div><div class="eyebrow">SAFELY RENDERED DATABASE CONTENT</div><h2>Saved comments</h2></div><button class="small-button" id="refresh">Refresh</button></div>
+      <div id="comments" class="comments-list"></div>
+    </section>
+    <section class="panel code-panel">
+      <div class="eyebrow">SECURE CODE PATH</div>
+      <pre><code>const paragraph = document.createElement("p");
+paragraph.textContent = comment.comment;
+commentCard.appendChild(paragraph);</code></pre>
+      <p class="muted">Why it works: textContent inserts the value as text, not parsed HTML. This protects this rendering context, including old records already stored in the database.</p>
+    </section>
+    <footer>Use only on localhost · <a href="/vulnerable.html">Compare with Vulnerable Mode →</a></footer>
+  </main>
+  <script src="/js/secure.js"></script>
+</body>
+</html>

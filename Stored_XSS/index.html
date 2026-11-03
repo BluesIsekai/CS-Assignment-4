@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CommentHub | Stored XSS Lab</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">◈ CommentHub</a>
+    <span class="top-tag">CYBERSECURITY LAB</span>
+  </header>
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow">WEB APPLICATION SECURITY · PRACTICAL</div>
+      <h1>Stored XSS <span>Demonstration Lab</span></h1>
+      <p>Explore how untrusted comments can become executable browser content—and how safe DOM rendering prevents it.</p>
+    </section>
+
+    <section class="notice">
+      <strong>Local educational environment only</strong>
+      <span>This project intentionally includes one vulnerable page. Keep it on your own computer and do not expose it to a public network.</span>
+    </section>
+
+    <section class="mode-grid">
+      <a class="mode-card danger" href="/vulnerable.html">
+        <div class="mode-icon">⚠</div>
+        <div class="mode-label">MODE 01</div>
+        <h2>Vulnerable Mode</h2>
+        <p>See how stored user content can be interpreted as HTML by an unsafe rendering sink.</p>
+        <span class="mode-link">Open vulnerable demo →</span>
+      </a>
+      <a class="mode-card safe" href="/secure.html">
+        <div class="mode-icon">✓</div>
+        <div class="mode-label">MODE 02</div>
+        <h2>Secure Mode</h2>
+        <p>Render the same database content safely as text using textContent and DOM methods.</p>
+        <span class="mode-link">Open secure demo →</span>
+      </a>
+    </section>
+
+    <section class="panel flow-panel">
+      <div class="section-heading"><div><div class="eyebrow">ATTACK LIFECYCLE</div><h2>How Stored XSS works</h2></div></div>
+      <div class="flow">
+        <div class="flow-step"><b>01</b><span>User submits<br>comment</span></div><i>→</i>
+        <div class="flow-step"><b>02</b><span>Server stores<br>the text</span></div><i>→</i>
+        <div class="flow-step"><b>03</b><span>Page retrieves<br>the comment</span></div><i>→</i>
+        <div class="flow-step"><b>04</b><span>Unsafe rendering<br>interprets HTML</span></div>
+      </div>
+      <p class="muted">The flaw demonstrated here is unsafe output handling in the browser. The API uses parameterized SQL in both modes; SQL injection is not part of this exercise.</p>
+    </section>
+
+    <footer>CommentHub · Stored XSS and mitigation · Local lab project</footer>
+  </main>
+</body>
+</html>

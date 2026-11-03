@@ -1,0 +1,15 @@
+{
+  "name": "commenthub-stored-xss-demo",
+  "version": "1.0.0",
+  "description": "Local educational demonstration of stored XSS and safe output handling",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "node --watch backend/server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "mysql2": "^3.11.5"
+  }
+}
