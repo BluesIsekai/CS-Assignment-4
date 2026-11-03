@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+
+{% block title %}XSS Security Lab | Home - Reflected XSS (Variant 2){% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-badge">
+            <i class="fa-solid fa-flask-vial"></i>
+            <span>CYBERSECURITY EDUCATION LAB • EXPERIMENT #2</span>
+        </div>
+        <h1 class="hero-title">
+            Reflected Cross-Site Scripting <span class="gradient-text">(XSS)</span>
+        </h1>
+        <p class="hero-subtitle">
+            Variant 2: Input Reflected in HTML Context. Explore the technical root cause of client-side code injection and master defensive output encoding through side-by-side interactive laboratories.
+        </p>
+
+        <div class="hero-actions">
+            <a href="{{ url_for('vulnerable') }}" class="btn btn-vulnerable-glow">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+                <span>Launch Vulnerable Lab</span>
+            </a>
+            <a href="{{ url_for('secure') }}" class="btn btn-secure-glow">
+                <i class="fa-solid fa-shield-check"></i>
+                <span>Launch Secure Lab</span>
+            </a>
+            <a href="{{ url_for('comparison') }}" class="btn btn-outline">
+                <i class="fa-solid fa-code-compare"></i>
+                <span>View Code Comparison</span>
+            </a>
+        </div>
+
+        <!-- Quick Architecture Metrics -->
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-icon metric-purple"><i class="fa-solid fa-bug"></i></div>
+                <div class="metric-info">
+                    <span class="metric-label">Vulnerability Class</span>
+                    <span class="metric-value">CWE-79 / OWASP Top 10 A03</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon metric-red"><i class="fa-solid fa-bolt"></i></div>
+                <div class="metric-info">
+                    <span class="metric-label">Target Variant</span>
+                    <span class="metric-value">Reflected (Non-Persistent)</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon metric-green"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="metric-info">
+                    <span class="metric-label">Primary Defense</span>
+                    <span class="metric-value">Context-Aware Output Encoding</span>
+                </div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-icon metric-blue"><i class="fa-solid fa-server"></i></div>
+                <div class="metric-info">
+                    <span class="metric-label">Environment</span>
+                    <span class="metric-value">Python Flask + Jinja2</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Prominent Lab Cards (Card A & Card B) -->
+    <section class="section labs-section">
+        <div class="section-header">
+            <div class="section-tag">Hands-On Environment</div>
+            <h2 class="section-title">Select an Interactive Search Lab</h2>
+            <p class="section-desc">
+                Experience the stark difference between raw untrusted rendering and secure HTML entity encoding using identical search inputs.
+            </p>
+        </div>
+
+        <div class="two-column-cards">
+            <!-- Card A: Vulnerable Search Lab -->
+            <div class="lab-card card-vulnerable">
+                <div class="card-glow-indicator vulnerable-glow"></div>
+                <div class="card-header-badge badge-vulnerable">
+                    <i class="fa-solid fa-triangle-exclamation"></i> VULNERABLE ENVIRONMENT
+                </div>
+                <h3 class="card-title">Vulnerable Search Lab</h3>
+                <p class="card-desc">
+                    Examines how an application becomes exploitable when incoming GET parameters are rendered directly into the HTML response without output encoding (using Jinja2's <code>| safe</code> filter).
+                </p>
+
+                <div class="card-specs">
+                    <div class="spec-row">
+                        <span class="spec-label"><i class="fa-solid fa-code"></i> Template Filter:</span>
+                        <span class="spec-val text-red"><code>&#123;&#123; query | safe &#125;&#125;</code></span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label"><i class="fa-solid fa-shield"></i> HTML Escaping:</span>
+                        <span class="spec-val text-red"><i class="fa-solid fa-xmark"></i> Disabled (Bypassed)</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label"><i class="fa-solid fa-play"></i> Script Execution:</span>
+                        <span class="spec-val text-red"><i class="fa-solid fa-check"></i> Executable in Browser</span>
+                    </div>
+                </div>
+
+                <div class="card-footer-action">
+                    <a href="{{ url_for('vulnerable') }}" class="btn btn-vulnerable w-100">
+                        <span>Enter Vulnerable Lab</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card B: Secure Search Lab -->
+            <div class="lab-card card-secure">
+                <div class="card-glow-indicator secure-glow"></div>
+                <div class="card-header-badge badge-secure">
+                    <i class="fa-solid fa-shield-halved"></i> SECURE ENVIRONMENT
+                </div>
+                <h3 class="card-title">Secure Search Lab</h3>
+                <p class="card-desc">
+                    Demonstrates how standard modern web frameworks defend against Reflected XSS by default using automatic HTML entity output encoding (rendering <code>&#123;&#123; query &#125;&#125;</code> as safe text).
+                </p>
+
+                <div class="card-specs">
+                    <div class="spec-row">
+                        <span class="spec-label"><i class="fa-solid fa-code"></i> Template Filter:</span>
+                        <span class="spec-val text-green"><code>&#123;&#123; query &#125;&#125;</code> (Default)</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label"><i class="fa-solid fa-shield"></i> HTML Escaping:</span>
+                        <span class="spec-val text-green"><i class="fa-solid fa-check"></i> Enabled (Automatic)</span>
+                    </div>
+                    <div class="spec-row">
+                        <span class="spec-label"><i class="fa-solid fa-ban"></i> Script Execution:</span>
+                        <span class="spec-val text-green"><i class="fa-solid fa-shield-cat"></i> Neutralized (Rendered as Text)</span>
+                    </div>
+                </div>
+
+                <div class="card-footer-action">
+                    <a href="{{ url_for('secure') }}" class="btn btn-secure w-100">
+                        <span>Enter Secure Lab</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Explanation: What is Reflected XSS? -->
+    <section class="section theory-overview-section">
+        <div class="content-box">
+            <div class="box-icon-header">
+                <div class="icon-circle"><i class="fa-solid fa-lightbulb"></i></div>
+                <div>
+                    <h2 class="box-title">What is Reflected Cross-Site Scripting (XSS)?</h2>
+                    <p class="box-subtitle">Understanding the Mechanics of Non-Persistent Code Injection</p>
+                </div>
+            </div>
+
+            <div class="explanation-grid">
+                <div class="explanation-text">
+                    <p>
+                        <strong>Cross-Site Scripting (XSS)</strong> is an injection vulnerability that occurs when a web application takes untrusted data from an HTTP request and includes it in an HTML response without proper sanitization or context-aware encoding.
+                    </p>
+                    <p>
+                        <strong>Reflected XSS (Type 1 / Non-Persistent):</strong>
+                        In reflected XSS, the malicious payload is <em>not stored</em> inside a database. Instead, it is passed within the request itself (commonly in the URL query parameters or form submissions). The server immediately "reflects" that input back into the page response.
+                    </p>
+                    <p>
+                        <strong>Why Variant 2 (Reflected in HTML Context)?</strong>
+                        In Variant 2, the user's input is reflected directly between standard HTML tags (e.g., inside <code>&lt;div&gt;Search results for: [INPUT]&lt;/div&gt;</code>). If an attacker provides markup characters such as <code>&lt;script&gt;</code>, the browser's parser misinterprets the data as executable directives rather than plain string content.
+                    </p>
+                </div>
+
+                <!-- Attack Flow Visual Card -->
+                <div class="attack-flow-card">
+                    <h4 class="flow-title"><i class="fa-solid fa-diagram-project"></i> Reflected XSS Attack Lifecycle</h4>
+                    
+                    <div class="flow-step">
+                        <div class="flow-step-num">1</div>
+                        <div class="flow-step-content">
+                            <strong>Attacker Crafts Malicious URL:</strong>
+                            <code>http://lab.local/vulnerable?q=&lt;script&gt;alert(1)&lt;/script&gt;</code>
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="flow-step-num">2</div>
+                        <div class="flow-step-content">
+                            <strong>Victim Clicks Link:</strong>
+                            Browser sends GET request with the payload in query parameters.
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="flow-step-num">3</div>
+                        <div class="flow-step-content">
+                            <strong>Server Reflects Unescaped Input:</strong>
+                            Flask renders response containing the raw un-encoded <code>&lt;script&gt;</code> tags.
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="flow-step-num">4</div>
+                        <div class="flow-step-content">
+                            <strong>Browser Executes Injected JavaScript:</strong>
+                            The victim's browser runs the script under the context of the vulnerable origin!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Purpose of this Experiment -->
+    <section class="section purpose-section">
+        <div class="section-header">
+            <div class="section-tag">Academic Objectives</div>
+            <h2 class="section-title">Purpose of This Laboratory Experiment</h2>
+            <p class="section-desc">
+                Designed for cybersecurity students to understand both offensive exploitation mechanics and defensive implementation in modern web applications.
+            </p>
+        </div>
+
+        <div class="three-card-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-microscope"></i></div>
+                <h3 class="feature-heading">1. Understand the Root Cause</h3>
+                <p class="feature-desc">
+                    Examine why treating user input as executable code breaks the fundamental security principle of <em>separating instructions from data</em> in browser parsing engines.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-shield-virus"></i></div>
+                <h3 class="feature-heading">2. Verify Output Encoding</h3>
+                <p class="feature-desc">
+                    Observe how converting characters like <code>&lt;</code> to <code>&amp;lt;</code> forces the browser parser to stay in the <em>Character Reference State</em>, treating payloads purely as literal text.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
+                <h3 class="feature-heading">3. Defense-in-Depth</h3>
+                <p class="feature-desc">
+                    Explore essential defensive controls including context-aware output encoding, Content Security Policy (CSP), HttpOnly cookies, and safe DOM sinks.
+                </p>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

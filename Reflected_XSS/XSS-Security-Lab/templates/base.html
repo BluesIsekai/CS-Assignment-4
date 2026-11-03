@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}XSS Security Lab | Reflected XSS (Variant 2){% endblock %}</title>
+    <!-- Google Fonts for modern typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for modern cybersecurity icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Custom Cyber Theme Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <!-- Subtle Cyber Grid Background Overlay -->
+    <div class="cyber-grid-overlay"></div>
+    <div class="cyber-glow-orb orb-1"></div>
+    <div class="cyber-glow-orb orb-2"></div>
+
+    <!-- Navigation Header -->
+    <header class="navbar-container">
+        <nav class="navbar">
+            <a href="{{ url_for('index') }}" class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">XSS Security Lab</span>
+                    <span class="brand-badge">Reflected XSS • Variant 2</span>
+                </div>
+            </a>
+
+            <!-- Mobile Menu Toggle Button -->
+            <button class="mobile-toggle" id="mobileMenuBtn" aria-label="Toggle navigation">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- Navigation Links: 4 Main Sections Only -->
+            <div class="nav-links" id="navLinks">
+                <a href="{{ url_for('index') }}" class="nav-link {% if active_page == 'home' %}active{% endif %}">
+                    <i class="fa-solid fa-house"></i> Home
+                </a>
+                <a href="{{ url_for('vulnerable') }}" class="nav-link nav-link-vulnerable {% if active_page == 'vulnerable' %}active{% endif %}">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Vulnerable Lab
+                </a>
+                <a href="{{ url_for('secure') }}" class="nav-link nav-link-secure {% if active_page == 'secure' %}active{% endif %}">
+                    <i class="fa-solid fa-lock"></i> Secure Lab
+                </a>
+                <a href="{{ url_for('comparison') }}" class="nav-link {% if active_page == 'comparison' %}active{% endif %}">
+                    <i class="fa-solid fa-code-compare"></i> Comparison
+                </a>
+            </div>
+
+            <!-- Lab Status Indicator -->
+            <div class="nav-status">
+                <span class="status-pulse"></span>
+                <span class="status-label">Local Lab Active</span>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Professional Cybersecurity Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col brand-col">
+                <div class="footer-logo">
+                    <i class="fa-solid fa-shield-virus"></i>
+                    <span>XSS Security Lab</span>
+                </div>
+                <p class="footer-desc">
+                    An academic cybersecurity experiment demonstrating Reflected Cross-Site Scripting (Variant 2: Reflected in HTML Context) and defense through context-aware output encoding.
+                </p>
+                <div class="footer-meta-pill">
+                    <i class="fa-solid fa-laptop-code"></i> College Cybersecurity Curriculum
+                </div>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Interactive Labs</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('vulnerable') }}"><i class="fa-solid fa-arrow-right"></i> Vulnerable Search Lab</a></li>
+                    <li><a href="{{ url_for('secure') }}"><i class="fa-solid fa-arrow-right"></i> Secure Search Lab</a></li>
+                    <li><a href="{{ url_for('comparison') }}"><i class="fa-solid fa-arrow-right"></i> Vulnerable vs Secure Code</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col">
+                <h4 class="footer-heading">Security Analysis</h4>
+                <ul class="footer-links">
+                    <li><a href="{{ url_for('comparison') }}#root-cause"><i class="fa-solid fa-atom"></i> Root Cause Analysis</a></li>
+                    <li><a href="{{ url_for('comparison') }}#output-encoding"><i class="fa-solid fa-shield"></i> Output Encoding Reference</a></li>
+                    <li><a href="{{ url_for('comparison') }}#mitigation-alternatives"><i class="fa-solid fa-layer-group"></i> Mitigation Alternatives</a></li>
+                    <li><a href="{{ url_for('comparison') }}#comparison-matrix"><i class="fa-solid fa-list-check"></i> Security Matrix</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col disclaimer-col">
+                <h4 class="footer-heading"><i class="fa-solid fa-shield-cat"></i> Safety Disclaimer</h4>
+                <div class="disclaimer-box">
+                    <p>
+                        This application is strictly for controlled educational training and college laboratory examinations. All demonstration payloads are benign alert popups. Application is restricted to <code>127.0.0.1</code>.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2026 XSS Security Lab • Designed for College Cybersecurity Practical Viva & Demonstrations</p>
+        </div>
+    </footer>
+
+    <!-- Core Script -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,397 @@
+{% extends 'base.html' %}
+
+{% block title %}Security Code Comparison | XSS Security Lab{% endblock %}
+
+{% block content %}
+<div class="page-container">
+    <!-- Breadcrumb -->
+    <div class="lab-breadcrumb">
+        <a href="{{ url_for('index') }}"><i class="fa-solid fa-house"></i> Home</a>
+        <i class="fa-solid fa-chevron-right separator"></i>
+        <span class="active-crumb">Security Code Comparison & Analysis</span>
+    </div>
+
+    <!-- Header -->
+    <div class="section-header text-left">
+        <div class="section-tag"><i class="fa-solid fa-code-compare"></i> Side-by-Side Analysis</div>
+        <h1 class="section-title">Vulnerable vs Secure Code Implementation</h1>
+        <p class="section-desc">
+            Analyze the exact lines of code that make an application susceptible to Reflected XSS (Variant 2), and examine how output encoding neutralizes the attack vector.
+        </p>
+    </div>
+
+    <!-- Side-by-Side Code Cards -->
+    <div class="two-column-cards code-comparison-grid">
+        <!-- Vulnerable Code Card -->
+        <div class="code-card card-vulnerable-border">
+            <div class="code-card-header bg-vulnerable-header">
+                <div class="code-card-title text-red">
+                    <i class="fa-solid fa-triangle-exclamation"></i> Vulnerable Implementation
+                </div>
+                <span class="badge-status-danger">HIGH RISK • XSS EXPLOITABLE</span>
+            </div>
+            
+            <div class="code-card-body">
+                <div class="code-block-wrapper">
+                    <div class="code-label"><i class="fa-brands fa-python"></i> Backend Route (app.py)</div>
+                    <pre class="code-block"><code><span class="code-decorator">@app.route</span>(<span class="code-str">'/vulnerable'</span>)
+<span class="code-keyword">def</span> <span class="code-func">vulnerable</span>():
+    <span class="code-comment"># Extract user search query from GET parameters</span>
+    query = request.args.get(<span class="code-str">'q'</span>, <span class="code-str">''</span>)
+    
+    <span class="code-comment"># Query is passed directly to the template</span>
+    <span class="code-keyword">return</span> render_template(
+        <span class="code-str">'vulnerable.html'</span>, 
+        query=query
+    )</code></pre>
+                </div>
+
+                <div class="code-block-wrapper">
+                    <div class="code-label"><i class="fa-solid fa-file-code"></i> Jinja2 Template (vulnerable.html)</div>
+                    <pre class="code-block"><code><span class="code-tag">&lt;div</span> <span class="code-attr">class</span>=<span class="code-str">"search-results"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;h3&gt;</span>Results for:<span class="code-tag">&lt;/h3&gt;</span>
+  
+  <span class="code-comment">&lt;!-- DANGER: The '| safe' filter explicitly disables autoescaping! --&gt;</span>
+  <span class="code-tag">&lt;div</span> <span class="code-attr">class</span>=<span class="code-str">"rendered-output"</span><span class="code-tag">&gt;</span>
+    <span class="code-flaw">&#123;&#123; query | safe &#125;&#125;</span>  <span class="code-comment">&lt;!-- VULNERABLE SINK --&gt;</span>
+  <span class="code-tag">&lt;/div&gt;</span>
+<span class="code-tag">&lt;/div&gt;</span></code></pre>
+                </div>
+
+                <div class="flaw-analysis flaw-vulnerable">
+                    <h4><i class="fa-solid fa-circle-xmark text-red"></i> Why This Fails:</h4>
+                    <ul>
+                        <li>The <code>| safe</code> filter explicitly orders Jinja2 to treat the string as pre-sanitized HTML markup.</li>
+                        <li>The browser receives raw tags like <code>&lt;script&gt;</code> or <code>&lt;img onerror="..."&gt;</code>.</li>
+                        <li>The HTML parser encounters markup boundaries, enters <em>Script Data State</em>, and executes arbitrary JavaScript in the victim's session context.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Secure Code Card -->
+        <div class="code-card card-secure-border">
+            <div class="code-card-header bg-secure-header">
+                <div class="code-card-title text-green">
+                    <i class="fa-solid fa-shield-halved"></i> Secure Implementation
+                </div>
+                <span class="badge-status-safe">DEFENDED • AUTO-ESCAPING ACTIVE</span>
+            </div>
+
+            <div class="code-card-body">
+                <div class="code-block-wrapper">
+                    <div class="code-label"><i class="fa-brands fa-python"></i> Backend Route (app.py)</div>
+                    <pre class="code-block"><code><span class="code-decorator">@app.route</span>(<span class="code-str">'/secure'</span>)
+<span class="code-keyword">def</span> <span class="code-func">secure</span>():
+    <span class="code-comment"># Extract user search query from GET parameters</span>
+    query = request.args.get(<span class="code-str">'q'</span>, <span class="code-str">''</span>)
+    
+    <span class="code-comment"># Query is passed as untrusted data</span>
+    <span class="code-keyword">return</span> render_template(
+        <span class="code-str">'secure.html'</span>, 
+        query=query
+    )</code></pre>
+                </div>
+
+                <div class="code-block-wrapper">
+                    <div class="code-label"><i class="fa-solid fa-file-code"></i> Jinja2 Template (secure.html)</div>
+                    <pre class="code-block"><code><span class="code-tag">&lt;div</span> <span class="code-attr">class</span>=<span class="code-str">"search-results"</span><span class="code-tag">&gt;</span>
+  <span class="code-tag">&lt;h3&gt;</span>Results for:<span class="code-tag">&lt;/h3&gt;</span>
+  
+  <span class="code-comment">&lt;!-- SECURE: Natural rendering utilizes automatic output encoding --&gt;</span>
+  <span class="code-tag">&lt;div</span> <span class="code-attr">class</span>=<span class="code-str">"rendered-output"</span><span class="code-tag">&gt;</span>
+    <span class="code-safe-highlight">&#123;&#123; query &#125;&#125;</span>  <span class="code-comment">&lt;!-- AUTOMATICALLY ESCAPED --&gt;</span>
+  <span class="code-tag">&lt;/div&gt;</span>
+<span class="code-tag">&lt;/div&gt;</span></code></pre>
+                </div>
+
+                <div class="flaw-analysis flaw-secure">
+                    <h4><i class="fa-solid fa-circle-check text-green"></i> Why This Succeeds:</h4>
+                    <ul>
+                        <li>Jinja2 automatically passes the string through <code>markupsafe.escape()</code>.</li>
+                        <li>Metacharacters (<code>&lt;</code>, <code>&gt;</code>, <code>&amp;</code>, <code>"</code>, <code>'</code>) are converted into their respective HTML character entity codes (e.g. <code>&amp;lt;</code>).</li>
+                        <li>The browser's parser processes the input strictly as a DOM <code>TextNode</code>; it never parses tags or executes code.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Root Cause Analysis Section -->
+    <section class="section root-cause-section" id="root-cause">
+        <div class="content-box">
+            <div class="box-icon-header">
+                <div class="icon-circle"><i class="fa-solid fa-atom"></i></div>
+                <div>
+                    <h2 class="box-title">Root Cause Analysis: Code vs Data Confusion</h2>
+                    <p class="box-subtitle">The Fundamental Architectural Principle of Injection Vulnerabilities</p>
+                </div>
+            </div>
+
+            <div class="root-cause-body">
+                <p>
+                    All injection vulnerabilities (including SQL Injection, Command Injection, and Cross-Site Scripting) stem from a single flaw: <strong>the failure to separate machine control instructions (code) from untrusted user parameters (data)</strong>.
+                </p>
+                <div class="architecture-diagram">
+                    <div class="diagram-col">
+                        <div class="diagram-box box-vulnerable-node">
+                            <span class="diagram-tag">Vulnerable Execution Path</span>
+                            <strong>User Input: <code>&lt;script&gt;alert(1)&lt;/script&gt;</code></strong>
+                            <p>Sent directly into HTTP body stream without encoding</p>
+                            <i class="fa-solid fa-arrow-down diagram-arrow text-red"></i>
+                            <div class="engine-state state-danger">
+                                <strong>Browser Parser State:</strong>
+                                <span>Tag Open State &rarr; Script Data State &rarr; JavaScript Engine executes instructions!</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="diagram-divider">
+                        <span>VS</span>
+                    </div>
+
+                    <div class="diagram-col">
+                        <div class="diagram-box box-secure-node">
+                            <span class="diagram-tag">Secure Execution Path</span>
+                            <strong>User Input: <code>&lt;script&gt;alert(1)&lt;/script&gt;</code></strong>
+                            <p>Encoded by Jinja2 &rarr; <code>&amp;lt;script&amp;gt;...&amp;lt;/script&amp;gt;</code></p>
+                            <i class="fa-solid fa-arrow-down diagram-arrow text-green"></i>
+                            <div class="engine-state state-safe">
+                                <strong>Browser Parser State:</strong>
+                                <span>Character Reference State &rarr; Appends literal characters into TextNode (Zero execution)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- HTML Entity Encoding Reference & Implemented Mitigation -->
+    <section class="section entity-section" id="output-encoding">
+        <div class="content-box">
+            <div class="box-icon-header">
+                <div class="icon-circle"><i class="fa-solid fa-shield"></i></div>
+                <div>
+                    <h2 class="box-title">Implemented Mitigation: Output Encoding</h2>
+                    <p class="box-subtitle">How Sensitive Characters are Neutralized in HTML Body Context (Variant 2)</p>
+                </div>
+            </div>
+
+            <div class="root-cause-body">
+                <p>
+                    <strong>Output Encoding Mechanism:</strong> When untrusted input is reflected in HTML body context, dangerous markup metacharacters are translated into their safe HTML character entity representations. Because the browser parser treats character entities strictly as character data, it never creates active DOM element tags or executes script blocks.
+                </p>
+            </div>
+
+            <div class="table-responsive">
+                <table class="cyber-table">
+                    <thead>
+                        <tr>
+                            <th>Raw Character</th>
+                            <th>ASCII / Unicode</th>
+                            <th>Encoded HTML Entity</th>
+                            <th>Numeric Code</th>
+                            <th>Security Purpose (Why It Must Be Encoded)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code class="char-pill text-red">&lt;</code></td>
+                            <td><code>U+003C</code></td>
+                            <td><code class="entity-pill">&amp;lt;</code></td>
+                            <td><code>&amp;#60;</code></td>
+                            <td>Prevents the browser parser from opening any HTML tag or entering Script Data State.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="char-pill text-red">&gt;</code></td>
+                            <td><code>U+003E</code></td>
+                            <td><code class="entity-pill">&amp;gt;</code></td>
+                            <td><code>&amp;#62;</code></td>
+                            <td>Prevents closing an existing HTML tag or attribute early to inject unescaped content.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="char-pill text-red">&amp;</code></td>
+                            <td><code>U+0026</code></td>
+                            <td><code class="entity-pill">&amp;amp;</code></td>
+                            <td><code>&amp;#38;</code></td>
+                            <td>Prevents entity decoding confusion and double-encoding bypasses in web applications.</td>
+                        </tr>
+                        <tr>
+                            <td><code class="char-pill text-red">&quot;</code></td>
+                            <td><code>U+0022</code></td>
+                            <td><code class="entity-pill">&amp;quot;</code></td>
+                            <td><code>&amp;#34;</code></td>
+                            <td>Prevents breaking out of double-quoted HTML attributes (e.g. <code>value="..."</code>).</td>
+                        </tr>
+                        <tr>
+                            <td><code class="char-pill text-red">&#39;</code></td>
+                            <td><code>U+0027</code></td>
+                            <td><code class="entity-pill">&#39;</code> / <code class="entity-pill">&amp;#x27;</code></td>
+                            <td><code>&amp;#39;</code></td>
+                            <td>Prevents breaking out of single-quoted HTML attributes or JavaScript string literals.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Interactive Live Entity Encoder Sandbox -->
+            <div class="interactive-encoder-tool">
+                <h4 class="tool-title"><i class="fa-solid fa-wand-magic-sparkles"></i> Live Interactive Encoding Sandbox</h4>
+                <p class="tool-desc">Type any payload below to see real-time HTML entity encoding applied:</p>
+                
+                <div class="tool-grid">
+                    <div class="tool-input-pane">
+                        <label for="liveInput" class="tool-label">Input String (Raw Untrusted Data):</label>
+                        <textarea id="liveInput" class="tool-textarea" rows="3" placeholder="Type markup here, e.g. <script>alert('XSS')</script>"></textarea>
+                    </div>
+                    <div class="tool-output-pane">
+                        <label class="tool-label">Encoded Result (Safe for HTML Body Context):</label>
+                        <pre id="liveOutput" class="tool-output-code"><code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></pre>
+                        <div id="liveDetectionBadge" class="detection-badge">
+                            <i class="fa-solid fa-shield"></i> <span id="detectionText">Waiting for input...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Short Theory Section: Other Mitigation Alternatives -->
+    <section class="section alternatives-section" id="mitigation-alternatives">
+        <div class="content-box">
+            <div class="box-icon-header">
+                <div class="icon-circle"><i class="fa-solid fa-layer-group"></i></div>
+                <div>
+                    <h2 class="box-title">Other Mitigation Alternatives</h2>
+                    <p class="box-subtitle">Defense-in-Depth Techniques Recommended by OWASP</p>
+                </div>
+            </div>
+
+            <div class="mitigation-layers-grid">
+                <!-- a. Context-aware output encoding -->
+                <div class="mitigation-layer-card">
+                    <div class="layer-number">A</div>
+                    <div class="layer-content">
+                        <h4>Context-Aware Output Encoding</h4>
+                        <p>Encoding rules must correspond to the specific rendering sink: HTML body (entity encoding), HTML attribute (attribute encoding), JavaScript block (hex encoding), CSS, or URL query parameters.</p>
+                        <span class="layer-badge">Primary Defense</span>
+                    </div>
+                </div>
+
+                <!-- b. Framework auto-escaping -->
+                <div class="mitigation-layer-card">
+                    <div class="layer-number">B</div>
+                    <div class="layer-content">
+                        <h4>Framework Auto-Escaping</h4>
+                        <p>Modern template engines and UI libraries (Jinja2, React JSX, Angular, Vue) automatically encode variable interpolations by default, preventing human developer omission errors.</p>
+                        <span class="layer-badge">Default Shield</span>
+                    </div>
+                </div>
+
+                <!-- c. HTML sanitisation -->
+                <div class="mitigation-layer-card">
+                    <div class="layer-number">C</div>
+                    <div class="layer-content">
+                        <h4>HTML Sanitisation</h4>
+                        <p>When user-formatted rich text must be accepted (e.g. blog comments), use robust, allow-list based sanitisation libraries like <code>DOMPurify</code> (frontend) or <code>Bleach</code> (Python) to strip dangerous elements and attributes.</p>
+                        <span class="layer-badge">Rich-Text Sink</span>
+                    </div>
+                </div>
+
+                <!-- d. Content Security Policy -->
+                <div class="mitigation-layer-card">
+                    <div class="layer-number">D</div>
+                    <div class="layer-content">
+                        <h4>Content Security Policy (CSP)</h4>
+                        <p>An HTTP response header (e.g., <code>Content-Security-Policy: default-src 'self'</code>) restricting allowable script sources and completely disabling inline script evaluation (blocking <code>&lt;script&gt;</code> and <code>onload</code>/<code>onerror</code> handlers).</p>
+                        <span class="layer-badge">Header Policy</span>
+                    </div>
+                </div>
+
+                <!-- e. HttpOnly cookies -->
+                <div class="mitigation-layer-card">
+                    <div class="layer-number">E</div>
+                    <div class="layer-content">
+                        <h4>HttpOnly Cookies</h4>
+                        <p>Configuring the <code>HttpOnly</code> attribute on session cookies instructs the browser to block JavaScript access via <code>document.cookie</code>, preventing session hijacking even if an XSS flaw exists.</p>
+                        <span class="layer-badge">Session Protection</span>
+                    </div>
+                </div>
+
+                <!-- f. Safe DOM sinks -->
+                <div class="mitigation-layer-card">
+                    <div class="layer-number">F</div>
+                    <div class="layer-content">
+                        <h4>Safe DOM Sinks</h4>
+                        <p>In client-side JavaScript, avoid dangerous sinks that parse markup (such as <code>element.innerHTML</code>, <code>outerHTML</code>, or <code>document.write</code>). Instead, use safe text sinks like <code>element.textContent</code> or <code>innerText</code>.</p>
+                        <span class="layer-badge">Client Practice</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comprehensive Comparison Table -->
+    <section class="section matrix-section" id="comparison-matrix">
+        <div class="content-box">
+            <div class="box-icon-header">
+                <div class="icon-circle"><i class="fa-solid fa-list-check"></i></div>
+                <div>
+                    <h2 class="box-title">Security Comparison Matrix</h2>
+                    <p class="box-subtitle">Technical Side-by-Side Evaluation of Vulnerable vs Defended Sinks</p>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="cyber-table comparison-matrix">
+                    <thead>
+                        <tr>
+                            <th>Evaluation Dimension</th>
+                            <th class="col-vulnerable"><i class="fa-solid fa-triangle-exclamation"></i> Vulnerable Implementation</th>
+                            <th class="col-secure"><i class="fa-solid fa-shield-check"></i> Secure Implementation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Endpoint Route</strong></td>
+                            <td><code>/vulnerable?q=...</code></td>
+                            <td><code>/secure?q=...</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Template Rendering</strong></td>
+                            <td><code>&#123;&#123; query | safe &#125;&#125;</code> (Explicit escape bypass)</td>
+                            <td><code>&#123;&#123; query &#125;&#125;</code> (Default autoescaping active)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Character Transformation</strong></td>
+                            <td>None. Characters like <code>&lt;</code> and <code>&gt;</code> passed unaltered.</td>
+                            <td>Entity encoded: <code>&lt;</code> &rarr; <code>&amp;lt;</code>, <code>&gt;</code> &rarr; <code>&amp;gt;</code></td>
+                        </tr>
+                        <tr>
+                            <td><strong>Browser DOM Sink</strong></td>
+                            <td>Interpreted as executable HTML / JavaScript nodes.</td>
+                            <td>Interpreted as inert DOM <code>TextNode</code>.</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Script Execution</strong></td>
+                            <td><span class="status-pill pill-danger"><i class="fa-solid fa-check"></i> Executable (Exploitable)</span></td>
+                            <td><span class="status-pill pill-safe"><i class="fa-solid fa-xmark"></i> Prevented (Neutralized)</span></td>
+                        </tr>
+                        <tr>
+                            <td><strong>CWE Classification</strong></td>
+                            <td>CWE-79: Improper Neutralization of Input During Web Page Generation</td>
+                            <td>Remediated / CWE-79 Defended</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Primary Defense Principle</strong></td>
+                            <td>None (Flawed trust in user input).</td>
+                            <td>Context-Aware Output Encoding (Defense at point of output).</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}

@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Vulnerable Search Lab | XSS Security Lab{% endblock %}
+
+{% block content %}
+<div class="page-container lab-page">
+    <!-- Lab Navigation & Breadcrumb -->
+    <div class="lab-breadcrumb">
+        <a href="{{ url_for('index') }}"><i class="fa-solid fa-house"></i> Home</a>
+        <i class="fa-solid fa-chevron-right separator"></i>
+        <span class="active-crumb text-red">Vulnerable Search Lab</span>
+    </div>
+
+    <!-- Prominent Warning Banner -->
+    <div class="alert-banner alert-vulnerable">
+        <div class="alert-icon">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <div class="alert-content">
+            <div class="alert-title">WARNING: Intentionally Vulnerable Educational Environment</div>
+            <div class="alert-text">
+                Output escaping is intentionally <strong>DISABLED</strong> on this route using Jinja2's <code>| safe</code> filter. User input is rendered directly into the HTML response document. Only harmless, alert-based proof-of-concept testing is permitted.
+            </div>
+        </div>
+        <div class="alert-badge">
+            <span class="pulse-red"></span>
+            <span>UNPROTECTED SINK</span>
+        </div>
+    </div>
+
+    <!-- Main Lab Card -->
+    <div class="lab-workbench-card card-vulnerable-border">
+        <div class="workbench-header">
+            <div class="header-left">
+                <span class="lab-pill lab-pill-red"><i class="fa-solid fa-skull"></i> Exploit Environment</span>
+                <h1 class="workbench-title">Vulnerable Search Lab</h1>
+                <p class="workbench-subtitle">
+                    Demonstrating Reflected XSS (Variant 2: Reflected in HTML Context). Submit a harmless JavaScript payload to observe how the unescaped response executes inside your browser.
+                </p>
+            </div>
+            <div class="header-right">
+                <a href="{{ url_for('secure') }}" class="btn btn-sm btn-outline-secure">
+                    <i class="fa-solid fa-shield-halved"></i> Switch to Secure Lab
+                </a>
+            </div>
+        </div>
+
+        <!-- Search Form (GET Method) -->
+        <form action="{{ url_for('vulnerable') }}" method="GET" class="search-form" id="vulnerableSearchForm">
+            <div class="search-input-group">
+                <span class="input-icon"><i class="fa-solid fa-magnifying-glass"></i></span>
+                <input 
+                    type="text" 
+                    name="q" 
+                    id="searchQueryInput"
+                    class="form-control cyber-input input-vulnerable" 
+                    placeholder="Enter search keyword or test payload (e.g. <script>alert('XSS')</script>)..."
+                    value="{{ query }}"
+                    autocomplete="off"
+                    required
+                >
+                <button type="submit" class="btn btn-vulnerable-submit" id="submitSearchBtn">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Search (Vulnerable)</span>
+                </button>
+                {% if has_searched %}
+                    <a href="{{ url_for('vulnerable') }}" class="btn btn-reset" title="Clear search">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </a>
+                {% endif %}
+            </div>
+        </form>
+
+        <!-- Quick 1-Click Payloads Palette -->
+        <div class="payload-palette">
+            <div class="palette-title">
+                <i class="fa-solid fa-flask"></i> Quick Benign Payloads (Click to Test):
+            </div>
+            <div class="payload-buttons">
+                <button type="button" class="payload-chip chip-red" onclick="setPayload('&lt;script&gt;alert(\'Reflected XSS Detected in Vulnerable Lab!\')&lt;/script&gt;')">
+                    <i class="fa-solid fa-code"></i> <code>&lt;script&gt;alert(...)&lt;/script&gt;</code>
+                </button>
+                <button type="button" class="payload-chip chip-orange" onclick="setPayload('&lt;img src=x onerror=&quot;alert(\'XSS via Image Event Handler!\')&quot;&gt;')">
+                    <i class="fa-solid fa-image"></i> <code>&lt;img onerror=alert(...)&gt;</code>
+                </button>
+                <button type="button" class="payload-chip chip-yellow" onclick="setPayload('&lt;svg onload=&quot;alert(\'XSS via SVG Payload!\')&quot;&gt;')">
+                    <i class="fa-solid fa-bezier-curve"></i> <code>&lt;svg onload=alert(...)&gt;</code>
+                </button>
+                <button type="button" class="payload-chip chip-purple" onclick="setPayload('&lt;h2 style=&quot;color:#f43f5e;font-weight:800;text-shadow:0 0 10px rgba(244,63,94,0.5)&quot;&gt;🔥 Injected HTML Content!&lt;/h2&gt;')">
+                    <i class="fa-solid fa-heading"></i> <code>HTML Tag Injection</code>
+                </button>
+                <button type="button" class="payload-chip chip-blue" onclick="setPayload('Cybersecurity Network Architecture')">
+                    <i class="fa-solid fa-font"></i> <code>Normal Safe Query</code>
+                </button>
+            </div>
+        </div>
+
+        <!-- Search Results Area -->
+        {% if has_searched %}
+            <div class="results-container">
+                <div class="results-header">
+                    <div class="results-title">
+                        <i class="fa-solid fa-square-poll-vertical"></i> Query Execution Output
+                    </div>
+                    <span class="status-badge badge-vulnerable-status">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Raw Unescaped HTML Injected
+                    </span>
+                </div>
+
+                <!-- CRITICAL VULNERABLE SINK:
+                     Jinja2's '| safe' filter tells the engine NOT to escape HTML.
+                     This reflects the untrusted query directly into the HTML response document! -->
+                <div class="result-box vulnerable-result-box" id="vulnerableResultContainer">
+                    <div class="result-meta-label">
+                        <i class="fa-solid fa-arrow-down-long"></i> Unsanitized Response Sink (rendered via <code>&#123;&#123; query | safe &#125;&#125;</code>):
+                    </div>
+                    <div class="rendered-content">
+                        {{ query | safe }}
+                    </div>
+                </div>
+
+                <!-- Technical Inspector Drawer -->
+                <div class="inspector-drawer">
+                    <div class="drawer-header">
+                        <i class="fa-solid fa-terminal"></i> Technical Inspector: What Just Happened?
+                    </div>
+                    <div class="drawer-grid">
+                        <div class="drawer-card">
+                            <span class="drawer-card-label">HTTP GET Parameter (q):</span>
+                            <pre class="code-snippet"><code>{{ query }}</code></pre>
+                        </div>
+                        <div class="drawer-card">
+                            <span class="drawer-card-label">Server Response Source Snippet:</span>
+                            <pre class="code-snippet text-red"><code>&lt;div class="rendered-content"&gt;
+  {{ query }}
+&lt;/div&gt;</code></pre>
+                        </div>
+                    </div>
+                    <div class="inspector-explanation">
+                        <p>
+                            <strong>Security Analysis:</strong> Because the server did not encode special characters (<code>&lt;</code>, <code>&gt;</code>, <code>"</code>, <code>'</code>), the web browser's HTML tokenizer encountered the <code>&lt;script&gt;</code> tag and transitioned from the <em>Data State</em> to the <em>Script Data State</em>. The browser's JavaScript engine parsed and executed the instructions within the window's origin.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Initial Prompt State -->
+            <div class="empty-state">
+                <div class="empty-icon text-red"><i class="fa-solid fa-bug"></i></div>
+                <h3 class="empty-title">Ready for Payload Injection</h3>
+                <p class="empty-desc">
+                    Enter a harmless alert payload or click one of the preset chips above to observe Reflected XSS Variant 2 in action.
+                </p>
+            </div>
+        {% endif %}
+
+        <!-- Navigation Buttons -->
+        <div class="workbench-footer-nav">
+            <a href="{{ url_for('index') }}" class="btn btn-outline">
+                <i class="fa-solid fa-arrow-left"></i> Return to Home
+            </a>
+            <div class="footer-nav-right">
+                <a href="{{ url_for('secure') }}" class="btn btn-secure">
+                    <span>Try Same Payload in Secure Lab</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </a>
+                <a href="{{ url_for('comparison') }}" class="btn btn-outline">
+                    <i class="fa-solid fa-code-compare"></i> Compare Code
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
