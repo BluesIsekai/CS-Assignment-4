@@ -1,5 +1,6 @@
 # SQL Injection – Authentication Bypass
 
+## Owner : Tanishq Joshi-IIT2024152
 A practical demonstration of **SQL Injection (SQLi)** using Python Flask and SQLite. This project demonstrates how improperly handled user input can manipulate SQL queries to bypass login authentication, along with a secure implementation using parameterized queries.
 
 ## Overview
