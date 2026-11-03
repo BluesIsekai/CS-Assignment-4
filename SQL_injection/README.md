@@ -184,14 +184,6 @@ Other techniques that can help prevent SQL Injection include:
 | Authentication bypass | Vulnerable | Protected |
 | Security approach | Unsafe | Recommended |
 
-## Disclaimer
-
-This project is developed strictly for educational purposes as part of an academic Cyber Security assignment.
-
-The vulnerable implementation is intentionally insecure and must only be tested in this locally controlled demonstration environment. Do not deploy the vulnerable application publicly or use these techniques against systems without explicit authorization.
-
-**Note:** The demonstration uses plaintext passwords for simplicity. Real-world applications should store passwords using secure password-hashing algorithms and should never use this example as a production authentication system.
-
 ---
 
 **Project:** SQL Injection – Authentication Bypass  
