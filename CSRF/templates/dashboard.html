@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Saqlain · GET CSRF Lab</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body><main><p class="eyebrow">IT-30001 / WEB SERVER SECURITY</p><h1>GET-based CSRF Lab</h1><p>Saqlain · IIT2024113</p><p class="notice">Local teaching application · disposable example.test email addresses</p>
+{% if not account %}
+<section><h2>Start a demo session</h2><p>Use the seeded Saqlain identity. No real credentials or email services are involved.</p><form method="post" action="/login"><button>Log in as Saqlain</button></form></section>
+{% else %}
+<section><span class="badge">{{ account.mode | upper }}</span><h2>Logged in as Saqlain</h2><p>Current email</p><strong id="current-email">{{ account.email }}</strong><p>The login cookie is HttpOnly and SameSite=Lax in both modes.</p></section>
+<section><h2>1. Select and reset the demonstration</h2><p>Each button resets the email and event log. Reuse the exact same attacker link in both modes.</p><form method="post" action="/configure"><input type="hidden" name="csrf_token" value="{{ account.token }}"><button name="mode" value="vulnerable">Reset → vulnerable</button> <button class="secondary" name="mode" value="secure">Reset → secure</button></form></section>
+<section><h2>2. Legitimate email change</h2><form method="{{ 'get' if account.mode == 'vulnerable' else 'post' }}" action="/change-email"><label>Demo email <input type="email" name="email" value="saqlain@example.test" required></label>{% if account.mode == 'secure' %}<input type="hidden" name="csrf_token" value="{{ account.token }}">{% endif %}<button>Save email</button></form></section>
+<section><h2>3. Visit the attacker page</h2><p><a href="http://localhost:8001/" target="_blank" rel="noopener">Open local attacker page ↗</a></p><p>Keep the victim at <code>127.0.0.1:5000</code> and the attacker at <code>localhost:8001</code>. These hostnames create distinct sites.</p></section>
+<section><h2>Observed requests</h2><ul>{% for event in account.events %}<li>{{ event }}</li>{% else %}<li>No email-change requests yet.</li>{% endfor %}</ul></section>
+{% endif %}</main></body></html>

